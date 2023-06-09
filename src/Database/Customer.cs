@@ -1,14 +1,14 @@
-namespace CustomerDatabase;
+namespace Database;
 
 class Customer
 {
-    private int _id;
+    private Guid _id;
     private string _firstName;
     private string _lastName;
     private string _email;
     private string _address;
 
-    public int Id
+    public Guid Id
     {
         get { return _id; }
     }
@@ -54,12 +54,17 @@ class Customer
         }
     }
 
-    public Customer(int id, string firstName, string lastName, string email, string address)
+    public Customer(Guid id, string firstName, string lastName, string email, string address)
     {
         _id = id;
         FirstName = firstName;
         LastName = lastName;
         Email = email;
         Address = address;
+    }
+
+    public override string ToString()
+    {
+        return $"{_id},{_firstName},{_lastName},{_email},{_address}";
     }
 }
