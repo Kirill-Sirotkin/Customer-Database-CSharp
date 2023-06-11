@@ -24,5 +24,9 @@ internal class Program
         Console.WriteLine(db.GetCustomerById(id1).ToString());
         db.UndoAction();
         Console.WriteLine(db.GetCustomerById(id1).ToString());
+        db.RedoAction();
+        Console.WriteLine(db.GetCustomerById(id1).ToString());
+
+        db.SaveChanges();
     }
 }

@@ -65,6 +65,11 @@ class CustomerDatabase
         _recorder.Rewind();
     }
 
+    public void RedoAction()
+    {
+        _recorder.Redo();
+    }
+
     public Customer GetCustomerById(Guid id)
     {
         Customer? customer = _customers.Find(c => c.Id == id);
