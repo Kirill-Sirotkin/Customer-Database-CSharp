@@ -17,7 +17,7 @@ class CustomerDatabase
 
     public CustomerDatabase(string filePath)
     {
-        if (fileNames.Contains(filePath)) throw new Exception("This file is already in use");
+        if (fileNames.Contains(filePath)) throw ExceptionHandler.FileException("This file is already in use", 1);
         _filePath = filePath;
         _customers = ConvertCustomersToList(FileHelper.ReadFile(_filePath));
         fileNames.Add(_filePath);
@@ -32,16 +32,25 @@ class CustomerDatabase
     public Guid CreateCustomer(CustomerDTO customerDTO)
     {
         if (GetCustomerByEmail(customerDTO.email) is not null)
-            throw new Exception("Email already in use");
+            throw ExceptionHandler.DatabaseException("Email already in use", 1);
 
         Guid id = Guid.NewGuid();
-        Customer customer = new Customer(
-            id,
-            customerDTO.firstName,
-            customerDTO.lastName,
-            customerDTO.email,
-            customerDTO.address
-        );
+
+        Customer customer;
+        try
+        {
+            customer = new Customer(
+                id,
+                customerDTO.firstName,
+                customerDTO.lastName,
+                customerDTO.email,
+                customerDTO.address
+            );
+        }
+        catch (Exception e)
+        {
+            throw ExceptionHandler.DatabaseException($"Failed to create customer: {e}", 2);
+        }
 
         Create action = new(customer, _customers);
         _recorder.Record(action);
@@ -73,7 +82,7 @@ class CustomerDatabase
     public Customer GetCustomerById(Guid id)
     {
         Customer? customer = _customers.Find(c => c.Id == id);
-        return customer is not null ? customer : throw new Exception();
+        return customer is not null ? customer : throw ExceptionHandler.DatabaseException("Customer not found", 3);
     }
 
     public Customer? GetCustomerByEmail(string email)
