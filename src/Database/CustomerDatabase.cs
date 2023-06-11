@@ -8,6 +8,7 @@ class CustomerDatabase
 
     private List<Customer> _customers;
     private string _filePath;
+    private ActionRecorder _recorder;
 
     public List<Customer> Customers
     {
@@ -20,6 +21,7 @@ class CustomerDatabase
         _filePath = filePath;
         _customers = ConvertCustomersToList(FileHelper.ReadFile(_filePath));
         fileNames.Add(_filePath);
+        _recorder = new();
     }
 
     ~CustomerDatabase()
@@ -40,33 +42,38 @@ class CustomerDatabase
             customerDTO.email,
             customerDTO.address
         );
-        _customers.Add(customer);
+
+        Create action = new(customer, _customers);
+        _recorder.Record(action);
         return id;
     }
 
-    public Customer? GetCustomerById(Guid id)
+    public void DeleteCustomer(Guid id)
     {
-        return _customers.Find(c => c.Id == id);
+        Delete action = new(GetCustomerById(id), _customers);
+        _recorder.Record(action);
+    }
+
+    public void UpdateCustomer(Guid id, CustomerDTO customerDTO)
+    {
+        Update action = new(GetCustomerById(id), customerDTO);
+        _recorder.Record(action);
+    }
+
+    public void UndoAction()
+    {
+        _recorder.Rewind();
+    }
+
+    public Customer GetCustomerById(Guid id)
+    {
+        Customer? customer = _customers.Find(c => c.Id == id);
+        return customer is not null ? customer : throw new Exception();
     }
 
     public Customer? GetCustomerByEmail(string email)
     {
         return _customers.Find(c => c.Email == email);
-    }
-
-    public void DeleteCustomer(Guid id)
-    {
-        _customers = _customers.Where(c => c.Id != id).ToList();
-    }
-
-    public void UpdateCustomer(Guid id, CustomerDTO customerDTO)
-    {
-        Customer? customer = GetCustomerById(id);
-        if (customer is null) return;
-        customer.FirstName = customerDTO.firstName;
-        customer.LastName = customerDTO.lastName;
-        customer.Email = customerDTO.email;
-        customer.Address = customerDTO.address;
     }
 
     public void SaveChanges()
