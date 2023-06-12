@@ -3,10 +3,10 @@ namespace Database;
 class Customer
 {
     private Guid _id;
-    private string _firstName;
-    private string _lastName;
-    private string _email;
-    private string _address;
+    private string _firstName = "defaultFirst";
+    private string _lastName = "defaultLast";
+    private string _email = "default@default.com";
+    private string _address = "defaultAddress";
 
     public Guid Id
     {
